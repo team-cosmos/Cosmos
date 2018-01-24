@@ -1,6 +1,12 @@
 // ethereum-utils.js
 
 var keythereum = require("keythereum");
+var ethereumUtil = require('ethereumjs-util')
+
+// Todo 
+> const util = require('ethereumjs-util')
+> util.privateToPublic(privateKey)
+//
 
 var createKeySync = function() {
   var params = { keyBytes: 32, ivBytes: 16 };

@@ -12,4 +12,5 @@ web3 = new Web3(new Web3.providers.HttpProvider(ethClient));
 /* Set up account */
 var key = ethUtils.createKeySync();
 // ethUtils.dumpKeyAsync(_password);
-var privateKey = ethUtils.importKeySync(_address, _password);
+// var privateKey = ethUtils.importKeySync(_address, _password);
+
