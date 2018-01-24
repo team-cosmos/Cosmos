@@ -29,7 +29,14 @@ var dumpKeyAsync = function(password) {
     });
 }
 
+var importKeySync = function(address, password) {
+  var datadir = "./";
+  var keyObject = keythereum.importFromFile(address, datadir);
+  return privateKey = keythereum.recover(password, keyObject);
+}
+
 module.exports = {
     createKeySync: createKeySync,
-    dumpKeyAsync: dumpKeyAsync
+    dumpKeyAsync: dumpKeyAsync,
+    importKeySync: importKeySync
 };
