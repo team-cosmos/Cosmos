@@ -1,4 +1,3 @@
-console.log("dd");
 var remote = require('electron').remote;
 var Menu = remote.require('menu');
 var MenuItem = remote.require('menu-item');
