@@ -34,3 +34,18 @@ document.addEventListener('DOMContentLoaded', function () {
     })
   })
 })
+
+// Block info UI.
+document.getElementById('latest-block-button').addEventListener("click", function() {
+    document.getElementById('latest-block').innerHTML = web3.eth.blockNumber;
+}, false);
+
+// New meter.
+document.getElementById('new-meter-button').addEventListener("click", function() {
+    document.getElementById('latest-block').innerHTML = web3.eth.blockNumber;
+}, false);
+
+// Send energy.
+document.getElementById('send-energy-button').addEventListener("click", function() {
+    document.getElementById('latest-block').innerHTML = web3.eth.blockNumber;
+}, false);
