@@ -109,7 +109,9 @@ contract CosmosMarket {
         tokenAddress =  cosmos.getAddress(0);
         gridAddress = cosmos.getAddress(1);
 
+        require(tokenAddress != 0x0);
         require(tokenAddress != address(this));
+        require(gridAddress != 0x0);
         require(gridAddress != address(this));
     }
 
@@ -157,6 +159,8 @@ contract CosmosMarket {
     function listSale(uint16 energyType, uint256 unitPrice, uint256 quantity) public returns (bool success) {
         require(quantity > 0);
         require(unitPrice > 0);
+        require(tokenAddress != 0x0);
+        require(gridAddress != 0x0);
 
         CosmosGrid grid = CosmosGrid(gridAddress);
         uint256 energyBalance = grid.getEnergyBalance(energyType);
