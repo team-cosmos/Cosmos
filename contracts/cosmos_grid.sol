@@ -1,6 +1,6 @@
 pragma solidity ^0.4.19;
 
-contract Grid {
+contract CosmosGrid {
 
     /** Map address of smart meters to their owners. */
     mapping (address => address) private ownerOf;
@@ -16,7 +16,7 @@ contract Grid {
      *
      * Constructor that sets up the grid.
      */
-    function Grid() public {
+    function CosmosGrid() public {
 
     }
 
