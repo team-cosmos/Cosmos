@@ -6,6 +6,12 @@ contract Cosmos {
 }
 
 
+contract CosmosToken {
+    /** Transfer CosmosToken on behalf of user. */
+    function transferFrom(address, address, uint256) public returns (bool) {}
+}
+
+
 contract CosmosGrid {
     /** Get seller's energy balance. */
     function getEnergyBalance(uint16) public view returns (uint256) {}
@@ -182,13 +188,17 @@ contract CosmosMarket {
         }
 
         SellListing memory listing = sellListings.data[cache.energyType].value[cache.seller];
+        uint cost = listing.unitPrice * quantity;
 
         require(msg.sender != listing.seller);
         require(listing.quantity >= quantity);
-        require((listing.unitPrice * quantity) == msg.value);
+        require(cost == msg.value);
 
         /* Move funds */
-        //@TODO
+        CosmosToken cosmosToken = CosmosToken(tokenAddress);
+        if (!cosmosToken.transferFrom(msg.sender, listing.seller, cost)) {
+            return false;
+        }
 
         /* Update sell listing */
         listing.quantity -= quantity;
