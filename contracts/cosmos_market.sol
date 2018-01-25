@@ -1,35 +1,36 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.19;
 
 contract Cosmos {
     /** Get addresses of other contracts. */
-    function getAddress(uint tag) public view returns (address contractAddr) {}
+    function getAddress(uint) public view returns (address) {}
 }
 
 
 contract CosmosGrid {
     /** Get seller's energy balance. */
-    function getEnergyBalance(uint16 energyType) public view returns (uint256 listed) {}
+    function getEnergyBalance(uint16) public view returns (uint256) {}
 
     /** Get how much energy seller has reserved for sale. */
-    function getEnergyListed(uint16 energyType) public view returns (uint256 listed) {}
+    function getEnergyListed(uint16) public view returns (uint256) {}
 
     /* Set aside energy for sale */
-    function listEnergy(uint16 _energyType, uint256 _value) public returns (bool success) {}
+    function listEnergy(uint16, uint256) public returns (bool) {}
 
     /** Sale. */
-    function transferListedEnergy(address _to, uint16 _energyType, uint256 _value) public {}
+    function transferListedEnergy(address, uint16, uint256) public {}
 }
 
 
 contract CosmosMarket {
 
     /** User sell listings. */
-    mapping(address => itmap) private sellListings;
-
-    using itamp_impl for itmap;
+    itmap private sellListings;
 
     /** Number of active sell listings. */
     uint256 private sellListingId;
+
+    /** Map SellListing ids to their addresses. */
+    mapping(uint256 => SellListingCache) private sellListingCaches;
 
     /** Admin of this contract. */
     address private admin;
@@ -42,6 +43,9 @@ contract CosmosMarket {
 
     /** Address of CosmosGrid contract. */
     address private gridAddress;
+
+    /** Keeps track of number of different types of energy. */
+    uint16 private energyCount;
     
     /** Components of a sell lsiting. */
     struct SellListing {
@@ -53,8 +57,14 @@ contract CosmosMarket {
         bool active;
     }
 
+    /** Used to locate sell listing. */
+    struct SellListingCache {
+        address seller;
+        uint16 energyType;
+    }
+
     event SellEvent(
-        uint256 id;
+        uint256 id,
         address indexed seller,
         uint16 energyType,
         uint256 quantity,
@@ -62,7 +72,7 @@ contract CosmosMarket {
     );
     
     event BuyEvent(
-        uint256 id;
+        uint256 id,
         address indexed buyer,
         address indexed seller,
         uint16 energyType,
@@ -71,6 +81,10 @@ contract CosmosMarket {
     );
 
     
+////////////////////////////////////////////////////////////////////
+////////////////////////// Cosmos merket ///////////////////////////
+////////////////////////////////////////////////////////////////////
+
     /**
      * Constrctor function.
      *
@@ -107,6 +121,17 @@ contract CosmosMarket {
         return true;
     }
 
+     /**
+     * Get my sell listings.
+     *
+     * @param energyType Type of energy added.
+     */
+    function _updateEnergyCount(uint16 energyType) internal {
+        if (energyType > energyCount) {
+            energyCount = energyType;
+        }
+    }
+
     /**
      * List a sale.
      *
@@ -125,15 +150,17 @@ contract CosmosMarket {
         if (energyBalance < quantity) { // Not enough energy to sell.
             return false;
         } else {
-            grid.listEnergy(quantity);
+            grid.listEnergy(energyType, quantity);
         } 
 
-        // memory vs storage? 
         SellListing memory listing = SellListing(sellListingId, msg.sender, energyType, unitPrice, quantity, true);
-        
-        sellListings[energyType].insert(msg.sender, listing);
+        sellListings.data[energyType].value[msg.sender] = listing;
 
+        // Bookkeeping.
+        SellListingCache memory cache = SellListingCache(msg.sender, energyType);
+        sellListingCaches[sellListingId] = cache;
         sellListingId += 1;
+        _updateEnergyCount(energyCount);
 
         return true;
     }
@@ -148,15 +175,20 @@ contract CosmosMarket {
     function buy(uint256 id, uint256 quantity) public payable returns (bool success) {
 
         /* Fetch listing with id. */
-        KeyValue r = sellListings[energyType].iterate_get(id);
-        SellListing listing = r.value;
+        SellListingCache memory cache = sellListingCaches[id];
+
+        if (cache.seller == 0x0) {
+            return false;
+        }
+
+        SellListing memory listing = sellListings.data[cache.energyType].value[cache.seller];
 
         require(msg.sender != listing.seller);
         require(listing.quantity >= quantity);
-        require(listing.unitPrice * quantity) == msg.value);
+        require((listing.unitPrice * quantity) == msg.value);
 
         /* Move funds */
-        @TODO
+        //@TODO
 
         /* Update sell listing */
         listing.quantity -= quantity;
@@ -166,7 +198,7 @@ contract CosmosMarket {
         }
 
         SellEvent(listing.id, listing.seller, listing.energyType, listing.quantity, listing.unitPrice);
-        BuyEvent(listing.id, listing.buyer, listing.seller, listing.energyType, listing.quantity, listing.unitPrice);
+        BuyEvent(listing.id, msg.sender, listing.seller, listing.energyType, listing.quantity, listing.unitPrice);
 
         return true;
     }
@@ -183,17 +215,17 @@ contract CosmosMarket {
      * @return quantity Quantity of sale.
      * @return unitPrice Price per unit.
      */
-    function getSellListing(uint256 listingId) 
+    function getSellListing(uint256 listingId) public view
         returns (bool success, uint256 id, address seller, uint16 energyType, uint256 quantity, uint256 unitPrice) {
 
         /* Fetch listing with id. */
-        KeyValue r = sellListings[energyType].iterate_get(id);
+        SellListingCache memory cache = sellListingCaches[listingId];
 
-        if (r.key == 0x0) {
+        if (cache.seller == 0x0) {
             return (false, 0, 0x0, 0, 0, 0);
         }
 
-        SellListing listing = r.value;
+        SellListing memory listing = sellListings.data[cache.energyType].value[cache.seller];
 
         return (true, listing.id, listing.seller, listing.energyType, listing.quantity, listing.unitPrice);
 
@@ -205,25 +237,22 @@ contract CosmosMarket {
      * @return success Query was successful.
      * @return listings Array of my listings.
      */
-    function mySellListings() public payable returns (bool success, SellListing[] listings) {
+    function mySellListings() public view returns (bool success, uint256[] listingIds) {
 
-        /* Fetch listing with address. */
-        @TODO
+        success = false;
 
-        /* Move funds */
-        @TODO
+        listingIds = new uint256[](energyCount);
 
-        /* Update sell listing */
-        listing.quantity -= quantity;
-        if (quantity <= 0) {
-            listing.active = false;
-            sellListings[energyType].remove(listing.seller);
+        for (uint16 i = 0; i < energyCount; i++) {
+            SellListing memory listing = sellListings.data[i].value[msg.sender];
+
+            if (listing.seller == msg.sender) {
+                listingIds[i] = listing.id;
+                success = true;
+            }
         }
 
-        SellEvent(listing.id, listing.seller, listing.energyType, listing.quantity, listing.unitPrice);
-        BuyEvent(listing.id, listing.buyer, listing.seller, listing.energyType, listing.quantity, listing.unitPrice);
-
-        return true;
+        return (success, listingIds);
     }
 
     /**
@@ -232,70 +261,18 @@ contract CosmosMarket {
     function kill() public { 
         if (msg.sender == admin) selfdestruct(admin); 
     }
-    
-}
-
 
 ////////////////////////////////////////////////////////////////////
 ///////////////////////// Iterable mapping /////////////////////////
 ////////////////////////////////////////////////////////////////////
 
-struct itmap {
-    struct IndexValue { uint keyIndex; SellListing value; }
-    struct KeyFlag { address key; bool deleted; }
-    struct KeyValue { address key; SellListing value; }
-
-    mapping(address => IndexValue) data;
-    KeyFlag[] keys;
-    uint size;
-}
-
-library itmap_impl {
-  function insert(itmap storage self, uint key, uint value) returns (bool replaced) {
-    uint keyIndex = self.data[key].keyIndex;
-    self.data[key].value = value;
-    if (keyIndex > 0) {
-      return true;
+    struct itmap {
+        mapping(uint16 => IndexValue) data;
+        KeyFlag[] keys;
     }
-    else {
-      keyIndex = keys.length++;
-      self.data[key].keyIndex = keyIndex + 1;
-      self.keys[keyIndex].key = key;
-      self.size++;
-      return false;
-    }
-  }
 
-  function remove(itmap storage self, uint key) returns (bool success) {
-    uint keyIndex = self.data[key].keyIndex;
-    if (keyIndex == 0)
-      return false;
-    delete self.data[key];
-    self.keys[keyIndex - 1].deleted = true;
-    self.size --;
-  }
-
-  function contains(itmap storage self, uint key) {
-    return self.data[key].keyIndex > 0;
-  }
-
-  function iterate_start(itmap storage self) returns (uint keyIndex) {
-    return iterate_next(self, -1);
-  }
-
-  function iterate_valid(itmap storage self, uint keyIndex) returns (bool) {
-    return keyIndex < self.keys.length;
-  }
-
-  function iterate_next(itmap storage self, uint keyIndex) returns (uint r_keyIndex) {
-    keyIndex++;
-    while (keyIndex < self.keys.length && self.keys[keyIndex].deleted)
-      keyIndex++;
-    return keyIndex;
-  }
-
-  function iterate_get(itmap storage self, uint keyIndex) returns (KeyValue r) {
-    r.key = self.keys[keyIndex].key;
-    r.value = self.data[key];
-  }
+    struct IndexValue { uint16 keyIndex; mapping(address => SellListing) value; }
+    struct KeyFlag { uint16 key; bool deleted; }
+    struct KeyValue { uint16 key; mapping(address => SellListing) value; }
+    
 }
