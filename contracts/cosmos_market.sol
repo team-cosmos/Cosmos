@@ -126,7 +126,7 @@ contract CosmosMarket {
         return true;
     }
 
-     /**
+    /**
      * Get my sell listings.
      *
      * @param energyType Type of energy added.
@@ -151,6 +151,7 @@ contract CosmosMarket {
         require(tokenAddress != 0x0);
         require(gridAddress != 0x0);
 
+        /* Energy balance */
         CosmosGrid grid = CosmosGrid(gridAddress);
         uint256 energyBalance = grid.getEnergyBalance(energyType);
 
@@ -160,14 +161,28 @@ contract CosmosMarket {
             grid.listEnergy(energyType, quantity);
         } 
 
-        SellListing memory listing = SellListing(sellListingId, msg.sender, energyType, unitPrice, quantity, true);
-        sellListings.data[energyType].value[msg.sender] = listing;
-
+        
         // Bookkeeping.
         SellListingCache memory cache = SellListingCache(msg.sender, energyType);
         sellListingCaches[sellListingId] = cache;
-        sellListingId += 1;
         _updateEnergyCount(energyCount);
+
+        /* Check if listing of same type exists */
+        SellListing memory pastListing = sellListings.data[energyType].value[msg.sender];
+        SellListing memory newListing;
+        if (pastListing.seller != 0x0) {
+            /* Update existing listing */
+            newListing = SellListing(pastListing.id, msg.sender, 
+                                     energyType, unitPrice, 
+                                     pastListing.quantity + quantity, true);
+        } else {
+            /* Create new listing */
+            newListing = SellListing(sellListingId, msg.sender, 
+                                     energyType, unitPrice, quantity, true);
+            sellListingId += 1;
+        }
+
+        sellListings.data[energyType].value[msg.sender] = newListing;
 
         return true;
     }
