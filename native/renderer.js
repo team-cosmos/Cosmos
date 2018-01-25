@@ -8,12 +8,16 @@ const ethUtils = require('./scripts/ethereum-utils');
 // New meter.
 document.getElementById('new-meter-button').addEventListener("click", function() {
   var wallet = ethUtils.createWallet(Math.random().toString(36));
-    document.getElementById('meter-public-key').innerHTML = 
-      "Public Key: " + wallet.getPublicKeyString();
+    document.getElementById('meter-public-key').innerHTML = wallet.getPublicKeyString();
 }, false);
 
 // Send energy.
-document.getElementById('send-energy-button').addEventListener("click", function() {
-    document.getElementById('latest-block').innerHTML = web3.eth.blockNumber;
-}, false);
+document.getElementById("send-energy").addEventListener("submit", function(event) { 
+  event.preventDefault(); 
+});
 
+document.getElementById("energy-input").addEventListener('input', function (event) {
+    if (this.value < 0) {
+      this.value = 0;
+    }
+});

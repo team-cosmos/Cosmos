@@ -1,16 +1,31 @@
 .section {
 	background-color: #eeeeee;
 	padding: 20px;
+	margin: 10px;
+	border-radius: 20px;
 }
 
 .section-image {
 	width: 20%;
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 .section-header {
 	margin: 0px;
 }
 
-.section-image {
-	
+#meter-info {
+	/*display: inline;*/
+	width: 80%;
+	padding: 20px;
+	border-radius: 20px;
+	background-color: #ffffff;
+}
+
+#send-energy {
+	padding: 20px;
+	margin-top: 20px;
+	border-radius: 20px;
+	background-color: #ffffff;
 }
