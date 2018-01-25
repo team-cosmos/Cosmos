@@ -5,8 +5,8 @@ const hdkey = require('ethereumjs-wallet/hdkey');
 const Wallet = require('ethereumjs-wallet');
 
 
-var createWallet = function() {
-  const privateKey = hdkey.fromMasterSeed('random')._hdkey._privateKey;
+var createWallet = function(seed) {
+  const privateKey = hdkey.fromMasterSeed(seed)._hdkey._privateKey;
   const wallet = Wallet.fromPrivateKey(privateKey);
   return wallet;
 }

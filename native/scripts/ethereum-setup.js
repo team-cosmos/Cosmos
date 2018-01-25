@@ -9,8 +9,6 @@ const ethClient = "https://ropsten.infura.io/ynXBPNoUYJ3C4ZDzqjga";
 var Web3 = require('web3');
 web3 = new Web3(new Web3.providers.HttpProvider(ethClient));
 
-/* Set up account */
-var wallet = ethUtils.createWallet();
-// ethUtils.dumpKeyAsync(_password);
-// var privateKey = ethUtils.importKeySync(_address, _password);
+// /* Set up account */
+// var wallet = ethUtils.createWallet();
 

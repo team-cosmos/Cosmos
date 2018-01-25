@@ -3,15 +3,13 @@
 // All of the Node.js APIs are available in this process.
 
 require('./scripts/setup.js');
-
-// Block info UI.
-document.getElementById('latest-block-button').addEventListener("click", function() {
-    document.getElementById('latest-block').innerHTML = web3.eth.blockNumber;
-}, false);
+const ethUtils = require('./scripts/ethereum-utils');
 
 // New meter.
 document.getElementById('new-meter-button').addEventListener("click", function() {
-    document.getElementById('latest-block').innerHTML = web3.eth.blockNumber;
+  var wallet = ethUtils.createWallet(Math.random().toString(36));
+    document.getElementById('meter-public-key').innerHTML = 
+      "Public Key: " + wallet.getPublicKeyString();
 }, false);
 
 // Send energy.
