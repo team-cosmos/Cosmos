@@ -8,8 +8,11 @@ const Wallet = require('ethereumjs-wallet');
 var createWallet = function(seed) {
   const privateKey = hdkey.fromMasterSeed(seed)._hdkey._privateKey;
   const wallet = Wallet.fromPrivateKey(privateKey);
+
+  // CONSOLE.log(wallet)
   return wallet;
 }
+
 
 // var dumpKeyAsync = function(password) {
 //   var kdf = "pbkdf2"; // or "scrypt" to use the scrypt kdf

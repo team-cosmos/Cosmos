@@ -2,20 +2,26 @@ const {app, BrowserWindow} = require('electron')
 const path = require('path')
 const url = require('url')
 
+const ejse = require('ejs-electron')
+
+
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
 
 function createWindow () {
   // Create the browser window.
-  win = new BrowserWindow({width: 800, height: 600})
+  win = new BrowserWindow({width: 1200, height: 800})
 
   // and load the index.html of the app.
   win.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
+    pathname: path.join(__dirname, '/views/index.ejs'),
     protocol: 'file:',
     slashes: true
   }))
+
+  // ejse.data('main_file', 'main_dashboard.ejs');
 
   // Open the DevTools.
   win.webContents.openDevTools()
