@@ -35,6 +35,7 @@ contract Grid {
     function _hasMeter(address user, address meter) internal view returns (bool belongs) {
         require(meter != 0x0);
         require(user != 0x0);
+        require(user != meter);
 
         address[] memory meters = metersOf[user];
 
@@ -66,6 +67,7 @@ contract Grid {
     function _deregisterMeter(address user, address meter) internal view returns (bool success) {
         require(user != 0x0);
         require(meter != 0x0);
+        require(user != meter);
         require(_hasMeter(msg.sender, meter));
 
         address[] memory meters = metersOf[msg.sender];
@@ -98,6 +100,7 @@ contract Grid {
     function _transferEnergy(address _from, address _to, uint256 _value) internal {
         require(_from != 0x0);
         require(_to != 0x0);
+        require(_from != to);
         require(energyBalanceOf[_from] >= _value);
         require(energyBalanceOf[_to] + _value >= energyBalanceOf[_to]); // Prevent overflow
 
@@ -141,6 +144,7 @@ contract Grid {
     function transferMeter(address newOwner, address meter) public returns (bool success) {
         require(newOwner != 0x0);
         require(meter != 0x0);
+        require(newOwner != meter);
         require(_hasMeter(msg.sender, meter));
 
         if (_deregisterMeter(msg.sender, meter)) {
