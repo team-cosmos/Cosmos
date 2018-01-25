@@ -1,42 +1,43 @@
 // ethereum-utils.js
 
-var keythereum = require("keythereum");
+// var keythereum = require("keythereum");
+const hdkey = require('ethereumjs-wallet/hdkey');
+const Wallet = require('ethereumjs-wallet');
 
-var createKeySync = function() {
-  var params = { keyBytes: 32, ivBytes: 16 };
 
-  return newKey = keythereum.create(params);
+var createWallet = function() {
+  const privateKey = hdkey.fromMasterSeed('random')._hdkey._privateKey;
+  const wallet = Wallet.fromPrivateKey(privateKey);
+  return wallet;
 }
 
-var dumpKeyAsync = function(password) {
-  var kdf = "pbkdf2"; // or "scrypt" to use the scrypt kdf
+// var dumpKeyAsync = function(password) {
+//   var kdf = "pbkdf2"; // or "scrypt" to use the scrypt kdf
 
-  var options = {
-    kdf: "pbkdf2",
-    cipher: "aes-128-ctr",
-    kdfparams: {
-      c: 262144,
-      dklen: 32,
-      prf: "hmac-sha256"
-    }
-  };
+//   var options = {
+//     kdf: "pbkdf2",
+//     cipher: "aes-128-ctr",
+//     kdfparams: {
+//       c: 262144,
+//       dklen: 32,
+//       prf: "hmac-sha256"
+//     }
+//   };
 
-  keythereum.dump(
-    password, newKey.privateKey, 
-    newKey.salt, newKey.iv, options, 
-    function (keyObject) {
-      keythereum.exportToFile(keyObject);
-    });
-}
+//   keythereum.dump(
+//     password, newKey.privateKey, 
+//     newKey.salt, newKey.iv, options, 
+//     function (keyObject) {
+//       keythereum.exportToFile(keyObject);
+//     });
+// }
 
-var importKeySync = function(address, password) {
-  var datadir = "./";
-  var keyObject = keythereum.importFromFile(address, datadir);
-  return privateKey = keythereum.recover(password, keyObject);
-}
+// var importKeySync = function(address, password) {
+//   var datadir = "./";
+//   var keyObject = keythereum.importFromFile(address, datadir);
+//   return privateKey = keythereum.recover(password, keyObject);
+// }
 
 module.exports = {
-    createKeySync: createKeySync,
-    dumpKeyAsync: dumpKeyAsync,
-    importKeySync: importKeySync
+    createWallet: createWallet
 };
