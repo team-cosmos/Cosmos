@@ -104,7 +104,8 @@ contract CosmosGrid {
      * @param _value The amount to send in kW.
      * @return success Operation was successful.
      */
-    function _transferEnergyBalance(address _from, address _to, uint16 _energyType, uint256 _value) internal {
+    function _transferEnergyBalance(address _from, address _to, uint16 _energyType, uint256 _value) 
+        internal returns (bool success) {
         require(_from != 0x0);
         require(_to != 0x0);
         require(_from != _to);
@@ -116,6 +117,7 @@ contract CosmosGrid {
         energyBalanceOf[_energyType][_to] += _value;
 
         assert(energyBalanceOf[_energyType][_from] + energyBalanceOf[_energyType][_to] == previousBalances);
+        return true;
     }
 
     /**
@@ -127,7 +129,8 @@ contract CosmosGrid {
      * @param _value The amount to send in kW.
      * @return success Operation was successful.
      */
-    function _transferListedEnergy(address _from, address _to, uint16 _energyType, uint256 _value) internal {
+    function _transferListedEnergy(address _from, address _to, uint16 _energyType, uint256 _value) 
+        internal returns (bool success) {
         require(_from != 0x0);
         require(_to != 0x0);
         require(_from != _to);
@@ -139,6 +142,7 @@ contract CosmosGrid {
         energyBalanceOf[_energyType][_to] += _value;
 
         assert(energyListedOf[_energyType][_from] + energyBalanceOf[_energyType][_to] == previousBalances);
+        return true;
     }
 
 
@@ -298,9 +302,12 @@ contract CosmosGrid {
      * @param _to The address of the recipient.
      * @param _energyType The type of energy to transfer.
      * @param _value The amount to send in kW.
+     * @return success Operation was successful.
      */
-    function transferEnergyBalance(address _to, uint16 _energyType, uint256 _value) public {
-        _transferEnergyBalance(tx.origin, _to, _energyType, _value);
+    function transferEnergyBalance(address _to, uint16 _energyType, uint256 _value) 
+        public returns (bool success){
+        success = _transferEnergyBalance(tx.origin, _to, _energyType, _value);
+        return success;
     }
 
     /**
@@ -313,9 +320,12 @@ contract CosmosGrid {
      * @param _to The address of the recipient.
      * @param _energyType The type of energy to transfer.
      * @param _value The amount to send in kW.
+     * @return success Operation was successful.
      */
-    function transferListedEnergy(address _to, uint16 _energyType, uint256 _value) public {
-        _transferListedEnergy(tx.origin, _to, _energyType, _value);
+    function transferListedEnergy(address _to, uint16 _energyType, uint256 _value) 
+        public returns (bool success){
+        success = _transferListedEnergy(tx.origin, _to, _energyType, _value);
+        return success;
     }
 
     /**

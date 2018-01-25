@@ -23,7 +23,7 @@ contract CosmosGrid {
     function listEnergy(uint16, uint256) public returns (bool) {}
 
     /** Sale. */
-    function transferListedEnergy(address, uint16, uint256) public {}
+    function transferListedEnergy(address, uint16, uint256) public returns (bool) {}
 }
 
 
@@ -100,6 +100,7 @@ contract CosmosMarket {
      */
     function CosmosMarket(address _cosmosAddress) public {
         require(_cosmosAddress != 0x0);
+        require(_cosmosAddress != address(this));
         admin = msg.sender;
 
         // Initialize to other contracts.
@@ -107,6 +108,9 @@ contract CosmosMarket {
         Cosmos cosmos = Cosmos(cosmosAddress);
         tokenAddress =  cosmos.getAddress(0);
         gridAddress = cosmos.getAddress(1);
+
+        require(tokenAddress != address(this));
+        require(gridAddress != address(this));
     }
 
     /**
@@ -118,11 +122,15 @@ contract CosmosMarket {
     function reininializeContracts(address _cosmosAddress) public returns (bool success) {
         require(msg.sender == admin);
         require(_cosmosAddress != 0);
+        require(_cosmosAddress != address(this));
 
         cosmosAddress = _cosmosAddress;
         Cosmos cosmos = Cosmos(cosmosAddress);
         tokenAddress =  cosmos.getAddress(0);
         gridAddress = cosmos.getAddress(1);
+
+        require(tokenAddress != address(this));
+        require(gridAddress != address(this));
 
         return true;
     }
@@ -196,7 +204,15 @@ contract CosmosMarket {
 
         /* Move funds */
         CosmosToken cosmosToken = CosmosToken(tokenAddress);
-        if (!cosmosToken.transferFrom(msg.sender, listing.seller, cost)) {
+        var tokenSuccess = cosmosToken.transferFrom(msg.sender, listing.seller, cost);
+        if (!tokenSuccess) {
+            return false;
+        }
+
+        /* Move Energy */
+        CosmosGrid cosmosGrid = CosmosGrid(gridAddress);
+        var girdSuccess = cosmosGrid.transferListedEnergy(msg.sender, listing.energyType, quantity);
+        if (!girdSuccess) {
             return false;
         }
 
@@ -270,6 +286,7 @@ contract CosmosMarket {
     /**
      * Get multiple sell listings, grouped by energy type.
      * Fetches ids of listing indices 'from' to 'to', inclusive.
+     * 20 is the maximum number of listings abled to query at once.
      *
      * @param energyType Type of energy to query.
      * @param from Inclusive first index of sale listing.
@@ -293,7 +310,7 @@ contract CosmosMarket {
 
         listingIds = new uint256[](goal);
 
-        while (found < goal && counter < 100) {
+        while (found < goal && counter < 20) {
             var (suc, , sel, eng, , , act) = getSellListing(counter);
 
             bool sellerValid = (sel != 0x0);
@@ -330,7 +347,5 @@ contract CosmosMarket {
     }
 
     struct IndexValue { uint16 keyIndex; mapping(address => SellListing) value; }
-    struct KeyFlag { uint16 key; bool deleted; }
-    struct KeyValue { uint16 key; mapping(address => SellListing) value; }
-    
+    struct KeyFlag { uint16 key; bool deleted; }    
 }
