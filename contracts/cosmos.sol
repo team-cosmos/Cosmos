@@ -12,7 +12,7 @@ contract Cosmos {
     * 2 - CosmosMarket.
     *
     */
-    mapping (uint => address) private addresses;
+    mapping (uint16 => address) private addresses;
 
     /**
      * Constrctor function.
@@ -42,7 +42,7 @@ contract Cosmos {
      * @param tag The identifying tag of the contract.
      * @return contractAddr Address of contract with tag.
      */
-    function getAddress(uint tag) public view returns (address contractAddr) {
+    function getAddress(uint16 tag) public view returns (address contractAddr) {
         contractAddr = addresses[tag];
         return contractAddr;
     }
@@ -54,7 +54,7 @@ contract Cosmos {
      * @param newAddress The address of the new contract.
      * @return success True if update of address was successful.
      */
-    function updateAddress(uint tag, address newAddress) public returns (bool success) {
+    function updateAddress(uint16 tag, address newAddress) public returns (bool success) {
         require(msg.sender == admin);
 
         addresses[tag] = newAddress;

@@ -49,7 +49,7 @@ contract CosmosGod {
     function updateAddress(address newAddress) public returns (bool success) {
         require(newAddress != 0x0);
         require(newAddress != cosmosAddress);
-        require(msg.sender == owner);
+        require(msg.sender == admin);
     	cosmosAddress = newAddress;
         return true;
     }
@@ -58,7 +58,7 @@ contract CosmosGod {
      * Self destruct.
      */
     function kill() public { 
-        if (msg.sender == owner) selfdestruct(owner); 
+        if (msg.sender == admin) selfdestruct(admin); 
     }
 
 }

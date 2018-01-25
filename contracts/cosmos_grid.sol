@@ -12,10 +12,10 @@ contract CosmosGrid {
     mapping(address => address[]) private metersOf;
 
     /** Map address of users to their remaining energy balance. */
-    mapping (address => uint256) private energyBalanceOf;
+    mapping (uint16 => mapping (address => uint256)) private energyBalanceOf;
 
     /** Map address of users to their energy on sale. */
-    mapping (address => uint256) private energyListedOf;
+    mapping (uint16 => mapping (address => uint256)) private energyListedOf;
 
     /**
      * Constrctor function.
@@ -35,7 +35,7 @@ contract CosmosGrid {
      * Check if a meter belongs to a user.
      *
      * @param user The address of the potential owner.
-     * @param meter The address of the meter..
+     * @param meter The address of the meter.
      * @return belongs Meter belongs to the user.
      */
     function _hasMeter(address user, address meter) internal view returns (bool belongs) {
@@ -100,21 +100,45 @@ contract CosmosGrid {
      *
      * @param _from The address of the sender.
      * @param _to The address of the recipient.
+     * @param _tag The type of energy to transfer.
      * @param _value The amount to send in kW.
      * @return success Operation was successful.
      */
-    function _transferEnergy(address _from, address _to, uint256 _value) internal {
+    function _transferEnergyBalance(address _from, address _to, uint16 _tag, uint256 _value) internal {
         require(_from != 0x0);
         require(_to != 0x0);
         require(_from != _to);
-        require(energyBalanceOf[_from] >= _value);
-        require(energyBalanceOf[_to] + _value >= energyBalanceOf[_to]); // Prevent overflow
+        require(energyBalanceOf[_tag][_from] >= _value);
+        require(energyBalanceOf[_tag][_to] + _value >= energyBalanceOf[_tag][_to]); // Prevent overflow
 
-        uint previousBalances = energyBalanceOf[_from] + energyBalanceOf[_to];
-        energyBalanceOf[_from] -= _value;
-        energyBalanceOf[_to] += _value;
+        uint previousBalances = energyBalanceOf[_tag][_from] + energyBalanceOf[_tag][_to];
+        energyBalanceOf[_tag][_from] -= _value;
+        energyBalanceOf[_tag][_to] += _value;
 
-        assert(energyBalanceOf[_from] + energyBalanceOf[_to] == previousBalances);
+        assert(energyBalanceOf[_tag][_from] + energyBalanceOf[_tag][_to] == previousBalances);
+    }
+
+    /**
+     * Internal energy sale function that can be called only by this contract.
+     *
+     * @param _from The address of the sender.
+     * @param _to The address of the recipient.
+     * @param _tag The type of energy to transfer.
+     * @param _value The amount to send in kW.
+     * @return success Operation was successful.
+     */
+    function _transferListedEnergy(address _from, address _to, uint16 _tag, uint256 _value) internal {
+        require(_from != 0x0);
+        require(_to != 0x0);
+        require(_from != _to);
+        require(energyListedOf[_tag][_from] >= _value);
+        require(energyListedOf[_tag][_to] + _value >= energyBalanceOf[_tag][_to]); // Prevent overflow
+
+        uint previousBalances = energyListedOf[_tag][_from] + energyBalanceOf[_tag][_to];
+        energyListedOf[_tag][_from] -= _value;
+        energyBalanceOf[_tag][_to] += _value;
+
+        assert(energyListedOf[_tag][_from] + energyBalanceOf[_tag][_to] == previousBalances);
     }
 
 
@@ -222,72 +246,93 @@ contract CosmosGrid {
     /**
      * Send energy to grid.
      *
+     * @param tag The type of energy to send.
      * @param value Energy in kW.
      * @return success Operation was successful.
      */
-    function sendEnergyToGrid(uint256 value) public returns (bool success){
-        require(energyBalanceOf[ownerOf[msg.sender]] + value 
-                >= energyBalanceOf[ownerOf[msg.sender]]); // Prevent overflow. 
+    function sendEnergyToGrid(uint16 tag, uint256 value) public returns (bool success){
+        require(energyBalanceOf[tag][ownerOf[msg.sender]] + value 
+                >= energyBalanceOf[tag][ownerOf[msg.sender]]); // Prevent overflow. 
 
-        energyBalanceOf[ownerOf[msg.sender]] += value;
+        energyBalanceOf[tag][ownerOf[msg.sender]] += value;
         return true;
     }
 
     /**
      * Get energy balance.
      *
+     * @param tag The type of energy.
      * @return balance Amount of energy in kw.
      */
-    function getEnergyBalance() public view returns (uint256 balance) {
-        return energyBalanceOf[msg.sender];
+    function getEnergyBalance(uint16 tag) public view returns (uint256 balance) {
+        return energyBalanceOf[tag][msg.sender];
     }
 
     /**
      * Get energy set aside for sale.
      *
+    * @param tag The type of energy.
      * @return listed Amount of energy in kw.
      */
-    function getEnergyListed() public view returns (uint256 listed) {
-        return energyListedOf[msg.sender];
+    function getEnergyListed(uint16 tag) public view returns (uint256 listed) {
+        return energyListedOf[tag][msg.sender];
     }
 
     /**
-     * Get total energy.
+     * Get total energy of specified type.
      *
+     * @param tag The type of energy.
      * @return listed Amount of energy in kw.
      */
-    function getEnergyListed() public view returns (uint256 listed) {
-        require(energyBalanceOf[msg.sender] + energyListedOf[msg.sender] >= energyBalanceOf[msg.sender]);
-        require(energyBalanceOf[msg.sender] + energyListedOf[msg.sender] >= energyListedOf[msg.sender]);
-        return energyBalanceOf[msg.sender] + energyListedOf[msg.sender];
+    function getTotalEnergyType(uint16 tag) public view returns (uint256 listed) {
+        require(energyBalanceOf[tag][msg.sender] + energyListedOf[tag][msg.sender] >= energyBalanceOf[tag][msg.sender]);
+        require(energyBalanceOf[tag][msg.sender] + energyListedOf[tag][msg.sender] >= energyListedOf[tag][msg.sender]);
+        return energyBalanceOf[tag][msg.sender] + energyListedOf[tag][msg.sender];
     }
 
     /**
-     * Transfer energy.
+     * Transfer energy balance.
      *
      * Send `_value` energy to `_to` from your balance.
      *
      * @param _to The address of the recipient.
+     * @param _tag The type of energy to transfer.
      * @param _value The amount to send in kW.
      */
-    function transferEnergy(address _to, uint256 _value) public {
-        _transferEnergy(msg.sender, _to, _value);
+    function transferEnergyBalance(address _to, uint16 _tag, uint256 _value) public {
+        _transferEnergyBalance(msg.sender, _to, _tag, _value);
+    }
+
+    /**
+     * Transfer listed energy.
+     *
+     * Send `_value` energy to `_to` from your energy list (sell).
+     * Note that the energy moves from msg.sender's energy listing 
+     * to _to's energy balance.
+     *
+     * @param _to The address of the recipient.
+     * @param _tag The type of energy to transfer.
+     * @param _value The amount to send in kW.
+     */
+    function transferListedEnergy(address _to, uint16 _tag, uint256 _value) public {
+        _transferListedEnergy(msg.sender, _to, _tag, _value);
     }
 
     /**
      * Set aside a portion of energy for sale.
      *
+     * @param _tag The type of energy to list.
      * @param _value The amount to list in kW.
      * @return success Operation was successful.
      */
-    function listEnergy(uint256 _value) public returns (bool success) {
-        require(energyBalanceOf[msg.sender] >= _value);
+    function listEnergy(uint16 _tag, uint256 _value) public returns (bool success) {
+        require(energyBalanceOf[_tag][msg.sender] >= _value);
         // Prevent overflow.
-        require(energyBalanceOf[msg.sender] -= _value <= energyBalanceOf[msg.sender]);
-        require(energyListedOf[msg.sender] += _value >= energyListedOf[msg.sender]);
+        require((energyBalanceOf[_tag][msg.sender] -= _value) <= energyBalanceOf[_tag][msg.sender]);
+        require((energyListedOf[_tag][msg.sender] += _value) >= energyListedOf[_tag][msg.sender]);
 
-        energyBalanceOf[msg.sender] -= _value;
-        energyListedOf[msg.sender] += _value;
+        energyBalanceOf[_tag][msg.sender] -= _value;
+        energyListedOf[_tag][msg.sender] += _value;
 
         success = true;
         return success;
@@ -296,17 +341,18 @@ contract CosmosGrid {
     /**
      * Add energy back to balance for sale listing.
      *
+     * @param _tag The type of energy to add.
      * @param _value The amount to add in kW.
      * @return success Operation was successful.
      */
-    function unlistEnergy(uint256 _value) public returns (bool success) {
-        require(energyListedOf[msg.sender] >= _value);
+    function unlistEnergy(uint16 _tag, uint256 _value) public returns (bool success) {
+        require(energyListedOf[_tag][msg.sender] >= _value);
         // Prevent overflow.
-        require(energyBalanceOf[msg.sender] += _value >= energyBalanceOf[msg.sender]);
-        require(energyListedOf[msg.sender] -= _value <= energyListedOf[msg.sender]);
+        require((energyBalanceOf[_tag][msg.sender] += _value) >= energyBalanceOf[_tag][msg.sender]);
+        require((energyListedOf[_tag][msg.sender] -= _value) <= energyListedOf[_tag][msg.sender]);
 
-        energyBalanceOf[msg.sender] += _value;
-        energyListedOf[msg.sender] -= _value;
+        energyBalanceOf[_tag][msg.sender] += _value;
+        energyListedOf[_tag][msg.sender] -= _value;
         
         success = true;
         return success;
