@@ -2,7 +2,7 @@
 
 ## Native
 
-When building native, if you get NODE_MODULE_VERSION mismatch error, run
+When building native, if you get NODE_MODULE_VERSION mismatch error, run (in native/)
 
 ~~~~
 npm install --save-dev electron-rebuild
