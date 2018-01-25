@@ -2,6 +2,9 @@ pragma solidity ^0.4.19;
 
 contract CosmosGrid {
 
+    /** Admin of this contract. */
+    address private admin;
+
     /** Map address of smart meters to their owners. */
     mapping (address => address) private ownerOf;
 
@@ -11,13 +14,16 @@ contract CosmosGrid {
     /** Map address of users to their remaining energy balance. */
     mapping (address => uint256) private energyBalanceOf;
 
+    /** Map address of users to their energy on sale. */
+    mapping (address => uint256) private energyListedOf;
+
     /**
      * Constrctor function.
      *
-     * Constructor that sets up the grid.
+     * Constructor that initializes the grid and sets the admin.
      */
     function CosmosGrid() public {
-
+        admin = msg.sender;
     }
 
 
@@ -90,7 +96,7 @@ contract CosmosGrid {
     }
 
     /**
-     * Internal Energy transfer function that can be called only by this contract.
+     * Internal energy transfer function that can be called only by this contract.
      *
      * @param _from The address of the sender.
      * @param _to The address of the recipient.
@@ -100,7 +106,7 @@ contract CosmosGrid {
     function _transferEnergy(address _from, address _to, uint256 _value) internal {
         require(_from != 0x0);
         require(_to != 0x0);
-        require(_from != to);
+        require(_from != _to);
         require(energyBalanceOf[_from] >= _value);
         require(energyBalanceOf[_to] + _value >= energyBalanceOf[_to]); // Prevent overflow
 
@@ -115,6 +121,19 @@ contract CosmosGrid {
     ////////////////////////////////////////////////////////////////////
     ///////////////////////// Public functions /////////////////////////
     ////////////////////////////////////////////////////////////////////
+
+    /**
+     * Transfer ownership of contract.
+     *
+     * @param newAdmin The address of the potential new admin.
+     * @return success True if transfer of ownership was successful.
+     */
+    function transferOwnership(address newAdmin) public returns (bool success) {
+        require(newAdmin != 0x0);
+        require(msg.sender == admin);
+        admin = newAdmin;
+        return true;
+    }
 
     /**
      * Assign an owner to a smart meter.
@@ -179,11 +198,11 @@ contract CosmosGrid {
      * @return user Address of the calling meter's owner.
      */
     function getOwner() public view returns (bool success, address user) {
-        address owner = ownerOf[msg.sender];
+        user = ownerOf[msg.sender];
 
-        success = (owner == 0x0);
+        success = (user != 0x0);
 
-        return (success, owner);
+        return (success, user);
     }
 
     /**
@@ -206,7 +225,7 @@ contract CosmosGrid {
      * @param value Energy in kW.
      * @return success Operation was successful.
      */
-    function sendEnergyToGrid(uint value) public returns (bool success){
+    function sendEnergyToGrid(uint256 value) public returns (bool success){
         require(energyBalanceOf[ownerOf[msg.sender]] + value 
                 >= energyBalanceOf[ownerOf[msg.sender]]); // Prevent overflow. 
 
@@ -215,15 +234,90 @@ contract CosmosGrid {
     }
 
     /**
-     * Transfer Energy.
+     * Get energy balance.
      *
-     * Send `_value` energy to `_to` from your account
+     * @return balance Amount of energy in kw.
+     */
+    function getEnergyBalance() public view returns (uint256 balance) {
+        return energyBalanceOf[msg.sender];
+    }
+
+    /**
+     * Get energy set aside for sale.
+     *
+     * @return listed Amount of energy in kw.
+     */
+    function getEnergyListed() public view returns (uint256 listed) {
+        return energyListedOf[msg.sender];
+    }
+
+    /**
+     * Get total energy.
+     *
+     * @return listed Amount of energy in kw.
+     */
+    function getEnergyListed() public view returns (uint256 listed) {
+        require(energyBalanceOf[msg.sender] + energyListedOf[msg.sender] >= energyBalanceOf[msg.sender]);
+        require(energyBalanceOf[msg.sender] + energyListedOf[msg.sender] >= energyListedOf[msg.sender]);
+        return energyBalanceOf[msg.sender] + energyListedOf[msg.sender];
+    }
+
+    /**
+     * Transfer energy.
+     *
+     * Send `_value` energy to `_to` from your balance.
      *
      * @param _to The address of the recipient.
      * @param _value The amount to send in kW.
      */
-     function transferEnergy(address _to, uint256 _value) public {
+    function transferEnergy(address _to, uint256 _value) public {
         _transferEnergy(msg.sender, _to, _value);
     }
+
+    /**
+     * Set aside a portion of energy for sale.
+     *
+     * @param _value The amount to list in kW.
+     * @return success Operation was successful.
+     */
+    function listEnergy(uint256 _value) public returns (bool success) {
+        require(energyBalanceOf[msg.sender] >= _value);
+        // Prevent overflow.
+        require(energyBalanceOf[msg.sender] -= _value <= energyBalanceOf[msg.sender]);
+        require(energyListedOf[msg.sender] += _value >= energyListedOf[msg.sender]);
+
+        energyBalanceOf[msg.sender] -= _value;
+        energyListedOf[msg.sender] += _value;
+
+        success = true;
+        return success;
+    }
+
+    /**
+     * Add energy back to balance for sale listing.
+     *
+     * @param _value The amount to add in kW.
+     * @return success Operation was successful.
+     */
+    function unlistEnergy(uint256 _value) public returns (bool success) {
+        require(energyListedOf[msg.sender] >= _value);
+        // Prevent overflow.
+        require(energyBalanceOf[msg.sender] += _value >= energyBalanceOf[msg.sender]);
+        require(energyListedOf[msg.sender] -= _value <= energyListedOf[msg.sender]);
+
+        energyBalanceOf[msg.sender] += _value;
+        energyListedOf[msg.sender] -= _value;
+        
+        success = true;
+        return success;
+    }
+
+    /**
+     * Self destruct.
+     */
+    function kill() public { 
+        if (msg.sender == admin) selfdestruct(admin); 
+    }
+
 
 }
