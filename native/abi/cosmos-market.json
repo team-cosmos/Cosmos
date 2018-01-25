@@ -61,6 +61,25 @@
 		"type": "function"
 	},
 	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_cosmosAddress",
+				"type": "address"
+			}
+		],
+		"name": "initializeContracts",
+		"outputs": [
+			{
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"constant": true,
 		"inputs": [
 			{
@@ -100,25 +119,6 @@
 		"inputs": [],
 		"name": "kill",
 		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_cosmosAddress",
-				"type": "address"
-			}
-		],
-		"name": "reininializeContracts",
-		"outputs": [
-			{
-				"name": "success",
-				"type": "bool"
-			}
-		],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -174,12 +174,7 @@
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"name": "_cosmosAddress",
-				"type": "address"
-			}
-		],
+		"inputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "constructor"

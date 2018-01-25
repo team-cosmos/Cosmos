@@ -2,28 +2,28 @@ pragma solidity ^0.4.19;
 
 contract Cosmos {
     /** Get addresses of other contracts. */
-    function getAddress(uint) public view returns (address) {}
+    function getAddress(uint16) public view returns (address);
 }
 
 
 contract CosmosToken {
     /** Transfer CosmosToken on behalf of user. */
-    function transferFrom(address, address, uint256) public returns (bool) {}
+    function transferFrom(address, address, uint256) public returns (bool);
 }
 
 
 contract CosmosGrid {
     /** Get seller's energy balance. */
-    function getEnergyBalance(uint16) public view returns (uint256) {}
+    function getEnergyBalance(uint16) public view returns (uint256);
 
     /** Get how much energy seller has reserved for sale. */
-    function getEnergyListed(uint16) public view returns (uint256) {}
+    function getEnergyListed(uint16) public view returns (uint256);
 
-    /* Set aside energy for sale */
-    function listEnergy(uint16, uint256) public returns (bool) {}
+    /** Set aside energy for sale. */
+    function listEnergy(uint16, uint256) public returns (bool);
 
     /** Sale. */
-    function transferListedEnergy(address, uint16, uint256) public returns (bool) {}
+    function transferListedEnergy(address, uint16, uint256) public returns (bool);
 }
 
 
@@ -94,25 +94,11 @@ contract CosmosMarket {
     /**
      * Constrctor function.
      *
-     * Initialize addresses of other contracts.
+     * Assign owner.
      *
-     * @param _cosmosAddress The address of main application contract.
      */
-    function CosmosMarket(address _cosmosAddress) public {
-        require(_cosmosAddress != 0x0);
-        require(_cosmosAddress != address(this));
+    function CosmosMarket() public {
         admin = msg.sender;
-
-        // Initialize to other contracts.
-        cosmosAddress = _cosmosAddress;
-        Cosmos cosmos = Cosmos(cosmosAddress);
-        tokenAddress =  cosmos.getAddress(0);
-        gridAddress = cosmos.getAddress(1);
-
-        require(tokenAddress != 0x0);
-        require(tokenAddress != address(this));
-        require(gridAddress != 0x0);
-        require(gridAddress != address(this));
     }
 
     /**
@@ -121,7 +107,7 @@ contract CosmosMarket {
      * @param _cosmosAddress The address of main application contract.
      * @return success Whether the reinitialization was successful.
      */
-    function reininializeContracts(address _cosmosAddress) public returns (bool success) {
+    function initializeContracts(address _cosmosAddress) public returns (bool success) {
         require(msg.sender == admin);
         require(_cosmosAddress != 0);
         require(_cosmosAddress != address(this));
@@ -131,7 +117,10 @@ contract CosmosMarket {
         tokenAddress =  cosmos.getAddress(0);
         gridAddress = cosmos.getAddress(1);
 
+        require(tokenAddress != 0x0);
         require(tokenAddress != address(this));
+
+        require(gridAddress != 0x0);
         require(gridAddress != address(this));
 
         return true;
