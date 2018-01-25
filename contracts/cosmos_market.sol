@@ -216,18 +216,20 @@ contract CosmosMarket {
      * @return unitPrice Price per unit.
      */
     function getSellListing(uint256 listingId) public view
-        returns (bool success, uint256 id, address seller, uint16 energyType, uint256 quantity, uint256 unitPrice) {
+        returns (bool success, uint256 id, address seller, uint16 energyType, 
+                 uint256 quantity, uint256 unitPrice, bool active) {
 
         /* Fetch listing with id. */
         SellListingCache memory cache = sellListingCaches[listingId];
 
         if (cache.seller == 0x0) {
-            return (false, 0, 0x0, 0, 0, 0);
+            return (false, 0, 0x0, 0, 0, 0, false);
         }
 
         SellListing memory listing = sellListings.data[cache.energyType].value[cache.seller];
 
-        return (true, listing.id, listing.seller, listing.energyType, listing.quantity, listing.unitPrice);
+        return (true, listing.id, listing.seller, listing.energyType, 
+                listing.quantity, listing.unitPrice, listing.active);
 
     }
 
@@ -252,6 +254,52 @@ contract CosmosMarket {
             }
         }
 
+        return (success, listingIds);
+    }
+
+    /**
+     * Get multiple sell listings, grouped by energy type.
+     * Fetches ids of listing indices 'from' to 'to', inclusive.
+     *
+     * @param energyType Type of energy to query.
+     * @param from Inclusive first index of sale listing.
+     * @param to Inclusive final index of sale listing.
+     * @param active If true, only active listings will be included.
+     * @return success Query was successful.
+     * @return listings Array of listing ids.
+     */
+    function getSellListingsByType(uint16 energyType, uint256 from, uint256 to, bool active) 
+                public view returns (bool success, uint256[] listingIds) {
+
+        require(from <= to);
+        require(to + 1 > to); // Prevent overflow.
+        require(to - from <= to); // Prevent overflow.
+
+        success = false;
+
+        uint256 goal = to + 1 - from;
+        uint256 counter = 0;
+        uint256 found = 0;
+
+        listingIds = new uint256[](goal);
+
+        while (found < goal && counter < 100) {
+            var (suc, , sel, eng, , , act) = getSellListing(counter);
+
+            bool sellerValid = (sel != 0x0);
+            bool energyValid = (energyType == eng);
+
+            if (suc && sellerValid && energyValid) {
+                if (!active || act) {
+                    listingIds[found] = counter; 
+                    found += 1;
+                } 
+            } 
+
+            counter += 1;
+        }
+
+        success = true;
         return (success, listingIds);
     }
 
