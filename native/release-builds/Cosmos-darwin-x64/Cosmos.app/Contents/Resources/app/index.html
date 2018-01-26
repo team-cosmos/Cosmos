@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Cosmos</title>
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="./photon-0.1.2-dist/css/photon.min.css">
+    <link rel="stylesheet" href="./css/styles.css">
+
+  </head>
+  <body>
+    <div class="window">
+
+      <!-- Your app's content goes inside .window-content -->
+      <div class="window-content">
+        <div class="pane-group">
+          <div class="pane pane-sm sidebar">
+            <nav class="nav-group">
+              <h5 class="nav-group-title">Menu</h5>
+              <span class="nav-group-item">
+                <span class="icon icon-home"></span>
+                Home
+              </span>
+              <span class="nav-group-item active">
+                <span class="icon icon-users"></span>
+                My Accounts
+              </span>
+              <span class="nav-group-item">
+                <span class="icon icon-tag"></span>
+                Marketplace
+              </span>
+              <span class="nav-group-item">
+                <span class="icon icon-cog"></span>
+                Settings
+              </span>
+            </nav>
+          </div>
+
+          <div class="pane">
+            <table class="table-striped">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Kind</th>
+                  <th>List Date</th>
+                  <th>Seller</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Selling</td>
+                  <td>Solar</td>
+                  <td>Jan 25th, 2017</td>
+                  <td>Sally Johnson</td>
+                </tr>
+                <tr>
+                  <td>Christmas sale</td>
+                  <td>Wind</td>
+                  <td>Jan 25th, 2017</td>
+                  <td>Vitalik Buterin</td>
+                </tr>
+                <tr>
+                  <td>Buy me</td>
+                  <td>Solar</td>
+                  <td>Jan 25th, 2017</td>
+                  <td>Satoshi Nakamoto</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="section">
+              <h1 class="section-header"> Smart Meter </h1>
+              <img class="section-image" src="./img/meter.png">
+
+              <div id="meter-info"> 
+                <div style="word-break: break-all; word-wrap: break-word;">
+                 <b>Public Key: </b> <span id="meter-public-key"></span>
+                </div> <br>
+
+                <button class="btn btn-large btn-positive" id="new-meter-button">New meter</button> 
+              </div> <!-- End meter-info -->
+
+              <div id="send-energy"> 
+                <form>
+                  <div class="form-group">
+                    <label>Enter amount of simulated energy to send to grid.</label>
+                    <input type="number" id="energy-input" class="form-control" placeholder="Energy in kW" min="0">
+                  </div>
+
+                  <div class="radio">
+                    <label>
+                      <input type="radio" name="radios" checked>
+                      Solar
+                    </label>
+                    <label style="margin-left: 10px">
+                      <input type="radio" name="radios">
+                      Wind                    
+                    </label>
+                  </div>
+                  <div class="form-actions">
+                    <button type="submit" class="btn btn-large btn-positive" id="send-energy-button">Send Energy</button>
+                  </div>
+                </form> 
+              </div> <!-- End send energy -->
+
+            </div>
+
+            
+          </div> <!-- End pane -->
+        </div> <!-- End pane-group -->
+
+      </div> <!-- End window-content -->
+
+      <footer class="toolbar toolbar-footer">
+          <h1 class="title">Cosmos 2018 &#9400; All rights reserved.</h1>
+      </footer>
+
+    </div> <!-- End window -->
+
+    <!-- <script src="http://cdn.rawgit.com/ethereum/web3.js/1.0.0/dist/web3.min.js"></script> -->
+    <script>
+      // You can also require other files to run in this process
+      require('./renderer.js')
+    </script>
+  </body>
+</html>
