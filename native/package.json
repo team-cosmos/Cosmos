@@ -1,6 +1,7 @@
 {
   "name": "cosmos",
-  "version": "1.0.0",
+  "productName": "Cosmos",
+  "version": "0.0.1",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -20,10 +21,16 @@
     "pace-progress": "^1.0.2",
     "popper.js": "^1.12.9",
     "simple-line-icons": "^2.4.1",
-    "web3": "^0.20.4"
+    "web3": "^1.0.0-beta.27"
   },
   "devDependencies": {
     "electron": "^1.7.11",
+    "electron-packager": "^10.1.1",
     "electron-rebuild": "^1.7.3"
-  }
+  },
+  "scripts": {
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=img/icons/mac/icon.icns --prune=true --out=release-builds",
+    "package-win": "electron-packager . cosmos --overwrite --asar=true --platform=win32 --arch=ia32 --icon=img/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Electron Tutorial App\"",    
+    "package-linux": "electron-packager . cosmos --overwrite --asar=true --platform=linux --arch=x64 --icon=img/icons/png/1024x1024.png --prune=true --out=release-builds"
+ }
 }
