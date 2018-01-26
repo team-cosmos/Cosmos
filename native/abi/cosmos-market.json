@@ -2,15 +2,25 @@
 	{
 		"constant": true,
 		"inputs": [],
-		"name": "mySellListings",
+		"name": "sellListingId",
 		"outputs": [
 			{
-				"name": "success",
-				"type": "bool"
-			},
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "energyCount",
+		"outputs": [
 			{
-				"name": "listingIds",
-				"type": "uint256[]"
+				"name": "",
+				"type": "uint16"
 			}
 		],
 		"payable": false,
@@ -61,22 +71,21 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_cosmosAddress",
-				"type": "address"
-			}
-		],
-		"name": "initializeContracts",
+		"constant": true,
+		"inputs": [],
+		"name": "mySellListings",
 		"outputs": [
 			{
 				"name": "success",
 				"type": "bool"
+			},
+			{
+				"name": "listingIds",
+				"type": "uint256[]"
 			}
 		],
 		"payable": false,
-		"stateMutability": "nonpayable",
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -115,103 +124,6 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
-		"inputs": [],
-		"name": "kill",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "energyType",
-				"type": "uint16"
-			},
-			{
-				"name": "unitPrice",
-				"type": "uint256"
-			},
-			{
-				"name": "quantity",
-				"type": "uint256"
-			}
-		],
-		"name": "listSale",
-		"outputs": [
-			{
-				"name": "success",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"name": "quantity",
-				"type": "uint256"
-			}
-		],
-		"name": "buy",
-		"outputs": [
-			{
-				"name": "success",
-				"type": "bool"
-			}
-		],
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"indexed": true,
-				"name": "seller",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "energyType",
-				"type": "uint16"
-			},
-			{
-				"indexed": false,
-				"name": "quantity",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"name": "unitPrice",
-				"type": "uint256"
-			}
-		],
-		"name": "SellEvent",
-		"type": "event"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -247,5 +159,121 @@
 		],
 		"name": "BuyEvent",
 		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"name": "seller",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "energyType",
+				"type": "uint16"
+			},
+			{
+				"indexed": false,
+				"name": "quantity",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "unitPrice",
+				"type": "uint256"
+			}
+		],
+		"name": "SellEvent",
+		"type": "event"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "quantity",
+				"type": "uint256"
+			}
+		],
+		"name": "buy",
+		"outputs": [
+			{
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "energyType",
+				"type": "uint16"
+			},
+			{
+				"name": "unitPrice",
+				"type": "uint256"
+			},
+			{
+				"name": "quantity",
+				"type": "uint256"
+			}
+		],
+		"name": "listSale",
+		"outputs": [
+			{
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "kill",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_cosmosAddress",
+				"type": "address"
+			}
+		],
+		"name": "initializeContracts",
+		"outputs": [
+			{
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
 	}
 ]
