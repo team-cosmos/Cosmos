@@ -32,8 +32,11 @@ contract CosmosMarket {
     /** User sell listings. */
     itmap private sellListings;
 
+    /** Keeps track of number of different types of energy. */
+    uint16 public energyCount;
+
     /** Number of active sell listings. */
-    uint256 private sellListingId;
+    uint256 public sellListingId;
 
     /** Map SellListing ids to their addresses. */
     mapping(uint256 => SellListingCache) private sellListingCaches;
@@ -49,9 +52,6 @@ contract CosmosMarket {
 
     /** Address of CosmosGrid contract. */
     address private gridAddress;
-
-    /** Keeps track of number of different types of energy. */
-    uint16 private energyCount;
     
     /** Components of a sell lsiting. */
     struct SellListing {

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<!-- head -->
+	<%- include('head') -%>
+
+<body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden">
+
+<!-- header -->
+<%- include('header') -%>
+	
+  <div class="app-body">
+ 
+		<%- include('sidebar') -%>
+
+    <!-- Main content -->
+    <main class="main">
+    <%- include("main_dashboard.ejs") -%>
+    </main>
+
+  	<%- include('aside') -%>
+
+  </div>
+
+
+	<%- include('footer') -%>
+
+
+	<%- include('scripts') -%>
+
+
+<script type="text/javascript">
+  require('../renderer.js')
+
+</script>
+
+</body>
+</html>

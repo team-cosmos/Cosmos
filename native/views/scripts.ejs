@@ -1,0 +1,151 @@
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+<div id="main_scripts">
+	<!-- Bootstrap and necessary plugins -->
+	<script src="../node_modules/jquery/dist/jquery.min.js"></script>
+	<script src="../node_modules/popper.js/dist/umd/popper.min.js"></script>
+	<script src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="../node_modules/pace-progress/pace.min.js"></script>
+
+	<!-- Plugins and scripts required by all views -->
+	<script src="../node_modules/chart.js/dist/Chart.min.js"></script>
+
+	<!-- CoreUI main scripts -->
+
+	<script src="../src/js/app.js"></script>
+
+	<!-- Plugins and scripts required by this views -->
+
+	<!-- Custom scripts required by this view -->
+	<script src="../src/js/views/main.js"></script>
+
+</div>
+<script>if (window.module) module = window.module;</script>
+
+
+
+
+
+<script type="text/javascript">
+
+
+
+
+
+
+
+/* Set up web3 */
+const ethClient = "https://ropsten.infura.io/ynXBPNoUYJ3C4ZDzqjga";
+var Web3 = require('web3');
+web3 = new Web3(new Web3.providers.HttpProvider(ethClient));
+
+
+
+// contract ABIs
+const marketABI = require('../abi/cosmos-market.json');
+
+// contract addresses 
+const token_addr = "0x0fD0E740B012bB7AA4E48AD6ECDB854345C2463d";
+const grid_addr = "0xd557D9961286711E35cA360Ad86e8033277903c6";
+const market_addr = "0xb24af1f3d5ec84aa14693d114ae94ef542da521f";
+
+// user addr
+const user_addr = "0x929FFF0071a12d66b9d2A90f8c3A6699551E91e3";
+
+// market contract instance
+var MarketContract = new web3.eth.Contract(marketABI,market_addr, {
+	// from: user_addr
+});
+
+// MarketContract.methods.getSellListingsByType(energyType, from, to, active).call({}, function(err, result){
+// 	if(err) console.log(err);
+
+// 	console.log(result)
+// });	
+
+
+
+
+
+
+
+function reload_scripts() {
+	var src_list = [];
+
+	// remove scripts 
+	for(var i = document.scripts.length - 1; i >= 0; i--) {
+		if(document.scripts[i].hasAttribute("src"))	{
+			var src = document.scripts[i].src;
+			src_list.push(src);
+			document.scripts[i].remove();
+		}	
+	}
+
+	// re-append scripts
+	for(var j = src_list.length - 1; j >= 0; j--) {
+			// create new script tag
+			var script = document.createElement('script');
+			script.src = src_list[j];
+			document.getElementById("main_scripts").appendChild(script);
+	}
+}
+
+function refresh_dashboard() {
+	$('main.main').load('main_dashboard.ejs', function() {
+		reload_scripts();
+	});
+}
+
+function refresh_buysell() {
+	$('main.main').load('main_buysell.ejs');
+		console.log(MarketContract)
+
+		// get number of sellListings
+		MarketContract.methods.sellListingId().call({}, function(err, result){
+			if(err) console.log(err);
+
+			for(var i = 0; i < result; i++) {
+				MarketContract.methods.getSellListing(i).call({}, function(err, result){
+					if(err) console.log(err);
+
+				  // ejse.data('main_file', 'main_dashboard.ejs');
+
+					// active
+					// energyType
+					// quantity
+					// seller
+					// success
+					// unitPrice
+
+
+		      // <th>Listing Id</th>
+		      // <th>Energy Type</th>
+		      // <th>Seller</th>
+		      // <th>Price</th>
+		      // <th>Quantity</th>
+		      // <th>Status</th>
+
+					// console.log(result.)
+
+		                      // <tr>
+		                      //   <td>Yiorgos Avraamu</td>
+		                      //   <td>2012/01/01</td>
+		                      //   <td>Member</td>
+		                      //   <td>
+		                      //     <span class="badge badge-success">Active</span>
+		                      //   </td>
+		                      // </tr>
+		                      console.log(result)
+					$('table#sell_listing tbody').append("<tr><td>" + result.id + "</td><td>" + result.energyType + "</td><td>" + result.seller + "</td><th>" + result.unitPrice + "</th><th>" + result.quantity + "</th><td><span class='badge badge-success'>Active</span></td></tr>");
+
+				});
+			}
+
+		});
+
+
+
+		reload_scripts();
+}
+
+
+</script>
