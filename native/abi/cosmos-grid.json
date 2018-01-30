@@ -180,6 +180,59 @@
 		"type": "function"
 	},
 	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "depot",
+				"type": "address"
+			},
+			{
+				"name": "energyType",
+				"type": "uint16"
+			},
+			{
+				"name": "price",
+				"type": "uint256"
+			},
+			{
+				"name": "quantity",
+				"type": "uint256"
+			},
+			{
+				"name": "begin",
+				"type": "uint256"
+			},
+			{
+				"name": "end",
+				"type": "uint256"
+			}
+		],
+		"name": "requestStorage",
+		"outputs": [
+			{
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "storageRequestId",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"constant": true,
 		"inputs": [],
 		"name": "getOwner",
@@ -220,6 +273,29 @@
 		"constant": false,
 		"inputs": [
 			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "accept",
+				"type": "bool"
+			}
+		],
+		"name": "deleteStorageRequest",
+		"outputs": [
+			{
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
 				"name": "newOwner",
 				"type": "address"
 			},
@@ -229,6 +305,25 @@
 			}
 		],
 		"name": "transferMeter",
+		"outputs": [
+			{
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "deleteStorageRequest",
 		"outputs": [
 			{
 				"name": "success",
